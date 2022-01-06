@@ -3,12 +3,12 @@ DESCRIBE albums;
 
 -- 3a. How many rows are in the albums table?
 -- ANSWER: 31
-SELECT count(id)
+SELECT COUNT(id)
   FROM albums;
 
 -- 3b. How many unique artist names are in the albums table?
 -- ANSWER: 23
-SELECT count(DISTINCT artist)
+SELECT COUNT(DISTINCT artist)
   FROM albums;
 
 -- 3c. What is the primary key for albums table?
@@ -18,7 +18,7 @@ DESCRIBE albums;
 -- 3d. What is the oldest release date for any album in the 
 --     albums table?
 -- ANSWER: 1967
-SELECT min(release_date)
+SELECT MIN(release_date)
   FROM albums;
 
 -- 4. Write queries to find the following informaiton:
