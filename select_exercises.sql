@@ -1,3 +1,7 @@
+-- Use the albums_db database
+USE albums_db;
+SHOW TABLES;
+
 -- 3. Explore the structure of the albums table. 
 DESCRIBE albums;
 
