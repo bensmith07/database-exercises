@@ -87,7 +87,7 @@ SELECT *
   FROM employees
   WHERE hire_date BETWEEN '1990-01-01' AND '1999-12-31'
     AND hire_date LIKE '%12-25'
-  ORDER BY hire_date DESC, birth_date;
+  ORDER BY birth_date, hire_date DESC;
 
 SELECT COUNT(*)
   FROM employees

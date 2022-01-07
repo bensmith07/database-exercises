@@ -1,3 +1,5 @@
+USE employees;
+
 -- 2. Find all current or previous employees with first 
 --    names 'Irena', 'Vidya', or 'Maya' using IN.
 
@@ -61,7 +63,7 @@ SELECT COUNT(*)
 --    of employees whose last name starts with 'E'. 
 -- ANSWER: 7330
 
-SELECT first_name, last_name
+SELECT *
   FROM employees
   WHERE last_name LIKE 'E%';
 
@@ -75,7 +77,7 @@ SELECT COUNT(*)
 --    with 'E'. 
 --ANSWER: 30723
 
-SELECT first_name, last_name
+SELECT *
   FROM employees
   WHERE last_name LIKE 'E%'
         OR last_name LIKE '%e';
@@ -99,7 +101,7 @@ SELECT COUNT(*)
 --    of employees whose last name starts and ends with 'E'. 
 --ANSWER: 899
 
-SELECT first_name, last_name
+SELECT *
   FROM employees
   WHERE last_name LIKE 'E%'
     AND last_name LIKE '%e'
@@ -137,12 +139,12 @@ SELECT first_name, last_name, hire_date
 
 SELECT first_name, last_name, hire_date
   FROM employees
-  WHERE hire_date LIKE '%12-25'
+  WHERE hire_date LIKE '%-12-25'
   ORDER BY hire_date, last_name, first_name;
 
 SELECT COUNT(*)
   FROM employees
-  WHERE hire_date LIKE '%12-25';
+  WHERE hire_date LIKE '%-12-25';
 
 --10. Find all current or previos employees hired in the 90s
 --    and born on Christmas. Enter a comment with the number 
