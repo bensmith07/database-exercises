@@ -35,7 +35,7 @@ SELECT name
 -- 4b. The year Sgt. Pepper's Lonely Hearts Club Band was released
 SELECT release_date
   FROM albums
-  WHERE name = 'Sgt. Pepper''s Lonely Hearts Club Band';
+  WHERE name = 'Sgt. Pepper\'s Lonely Hearts Club Band';
 
 -- 4c. The genre for the album Nevermind
 SELECT genre 
