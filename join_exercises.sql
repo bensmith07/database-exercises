@@ -83,8 +83,5 @@ SELECT t.title, COUNT(t.emp_no)
   GROUP BY t.title
   ORDER BY t.title;
 
--- 5. Find the current salary of all current managers. 
-
-SELECT 
-
+-- 5. Find the current salary of all current managers.
 
