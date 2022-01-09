@@ -134,7 +134,19 @@ SELECT d.dept_name AS 'Department',
 -- 8. Who is the highest paid employee in the
 --    marketing department?
 
-
+SELECT CONCAT(e.first_name, ' ', e.last_name) AS 'Highest Paid in Marketing',
+       s.salary AS 'Salary'
+  FROM departments AS d
+    JOIN dept_emp AS de 
+      ON d.dept_no = de.dept_no
+    JOIN employees AS e
+      ON de.emp_no = e.emp_no
+    JOIN salaries AS s  
+      ON e.emp_no = s.emp_no
+  WHERE s.to_date = '9999-01-01'
+    AND d.dept_name = 'Marketing'
+  ORDER BY s.salary DESC
+  LIMIT 1;
 
 -- 9. Which current department manager has the 
 --    highest salary?
@@ -154,8 +166,6 @@ SELECT d.dept_name AS 'Department',
   ORDER BY s.salary DESC 
   LIMIT 1;
 
-
-
 -- 10. Determine the average salary for each 
 --     department. Use all salary information and
 --     round your results. 
@@ -170,15 +180,43 @@ SELECT d.dept_name AS 'Department',
     JOIN salaries AS s 
       ON e.emp_no = s.emp_no
   GROUP BY d.dept_name
-   ORDER BY AVG(s.salary) DESC;
+  ORDER BY AVG(s.salary) DESC;
 
--- 11. Bonus Find the names of all current 
+-- 11. Bonus: Find the names of all current 
 --     employees, their department name, and 
 --     their current manager's name.
 
+SELECT CONCAT(e.first_name, ' ', e.last_name) AS 'Employee',
+       d.dept_name AS 'Department', 
+       CONCAT(m.first_name, ' ', m.last_name) AS 'Manager'
+  FROM employees AS m 
+    JOIN dept_manager as dm 
+      ON m.emp_no = dm.emp_no
+    JOIN departments AS d
+      ON dm.dept_no = d.dept_no 
+    JOIN dept_emp AS de
+      ON d.dept_no = de.dept_no
+    JOIN employees AS e
+      ON de.emp_no = e.emp_no
+  WHERE de.to_date = '9999-01-01'
+    AND dm.to_date = '9999-01-01';
 
-
-
--- 12. Bonus Who is the highest paid employee 
+-- 12. Bonus: Who is the highest paid employee 
 --     within each department.
- 
+
+SELECT d.dept_name AS 'Department',
+       -- CONCAT(e.first_name, ' ', e.last_name) AS 'Employee',
+       MAX(salary)
+  FROM departments AS d
+    JOIN dept_emp AS de 
+      ON d.dept_no = de.dept_no
+    JOIN employees AS e 
+      ON de.emp_no = e.emp_no
+    JOIN salaries AS s 
+      ON e.emp_no = s.emp_no
+  WHERE s.to_date = '9999-01-01'
+  GROUP BY d.dept_name;
+
+  -- ^^^NOT COMPLETE^^^ need to find the name of
+  -- employee corresponding to each max salary
+        
