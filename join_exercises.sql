@@ -83,5 +83,102 @@ SELECT t.title, COUNT(t.emp_no)
   GROUP BY t.title
   ORDER BY t.title;
 
--- 5. Find the current salary of all current managers.
+-- 5. Find the current salary of all current 
+--    managers.
 
+SELECT d.dept_name AS 'Department',
+       CONCAT(e.first_name, ' ', e.last_name) AS 'Manager',
+       s.salary AS 'Salary'
+  FROM departments AS d
+    JOIN dept_manager AS dm
+      on d.dept_no = dm.dept_no
+    JOIN employees AS e
+      ON dm.emp_no = e.emp_no
+    JOIN salaries AS s
+      ON e.emp_no = s.emp_no 
+  WHERE dm.to_date = '9999-01-01'
+    AND s.to_date = '9999-01-01'
+  ORDER BY d.dept_name;
+
+-- 6. Find the number of current employees in 
+--    each department. 
+
+SELECT d.dept_no AS 'Dept #',
+       d.dept_name AS 'Department',
+       COUNT(de.emp_no) AS 'Number of Employees'
+  FROM departments AS d 
+    JOIN dept_emp AS de 
+      ON d.dept_no = de.dept_no 
+  WHERE de.to_date = '9999-01-01'
+  GROUP BY de.dept_no
+  ORDER BY d.dept_no;
+
+-- 7. Which department has the highest average
+--    salary? Hint: use current not historic 
+--    information. 
+
+SELECT d.dept_name AS 'Department', 
+       AVG(s.salary) AS 'Average Salary'
+  FROM departments AS d
+    JOIN dept_emp AS de 
+      ON d.dept_no = de.dept_no
+    JOIN employees AS e
+      ON de.emp_no = e.emp_no 
+    JOIN salaries AS s 
+      ON e.emp_no = s.emp_no
+  WHERE s.to_date = '9999-01-01'
+  GROUP BY d.dept_name
+  ORDER BY AVG(s.salary) DESC
+  LIMIT 1;
+
+-- 8. Who is the highest paid employee in the
+--    marketing department?
+
+
+
+-- 9. Which current department manager has the 
+--    highest salary?
+
+SELECT d.dept_name AS 'Department',
+       CONCAT(e.first_name, ' ', e.last_name) AS 'Manager',
+       s.salary AS 'Salary'
+  FROM departments AS d
+    JOIN dept_manager AS dm
+      on d.dept_no = dm.dept_no
+    JOIN employees AS e
+      ON dm.emp_no = e.emp_no
+    JOIN salaries AS s
+      ON e.emp_no = s.emp_no 
+  WHERE dm.to_date = '9999-01-01'
+    AND s.to_date = '9999-01-01'
+  ORDER BY s.salary DESC 
+  LIMIT 1;
+
+
+
+-- 10. Determine the average salary for each 
+--     department. Use all salary information and
+--     round your results. 
+
+SELECT d.dept_name AS 'Department', 
+       ROUND(AVG(s.salary), 0) AS 'Average Salary'
+  FROM departments AS d
+    JOIN dept_emp AS de 
+      ON d.dept_no = de.dept_no
+    JOIN employees AS e
+      ON de.emp_no = e.emp_no 
+    JOIN salaries AS s 
+      ON e.emp_no = s.emp_no
+  GROUP BY d.dept_name
+   ORDER BY AVG(s.salary) DESC;
+
+-- 11. Bonus Find the names of all current 
+--     employees, their department name, and 
+--     their current manager's name.
+
+
+
+
+-- 12. Bonus Who is the highest paid employee 
+--     within each department.
+ 
