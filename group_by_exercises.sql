@@ -22,7 +22,7 @@ SELECT last_name
 --    and last names of all employees whose last names start 
 --    and end with E. 
 
-SELECT *
+SELECT first_name, last_name
   FROM employees
   WHERE last_name LIKE 'E%'
     AND last_name LIKE '%E'
@@ -50,13 +50,14 @@ SELECT last_name, COUNT(last_name)
   GROUP BY last_name;
 
 -- 7. Find all employees with first names 'Irena', 'Vidya',
---    or 'Maya'. Use COUNT(*) and GROUOP BY to find the 
+--    or 'Maya'. Use COUNT(*) and GROUP BY to find the 
 --    number of employees for each gender with those names.
 
-SELECT gender, COUNT(*) 
+SELECT first_name, gender, COUNT(*) 
   FROM employees 
   WHERE first_name IN ('Irena', 'Vidya', 'Maya')
-  GROUP BY gender;
+  GROUP BY first_name, gender
+  ORDER BY first_name;
 
 -- 8. Using your query that generates a username for all
 --    of the employees, generate a count of employees for
@@ -79,7 +80,7 @@ SELECT LOWER(CONCAT(
 -- BONUS: How many duplicate usernames are there?
 -- ANSWER: 13251
 
-SELECT COUNT(*)
+SELECT COUNT(*), SUM(num_shared)
     FROM (
           SELECT LOWER(CONCAT(
                     SUBSTR(first_name, 1, 1), 
@@ -89,7 +90,7 @@ SELECT COUNT(*)
                     SUBSTR(birth_date, 3, 2)
                    ))
                   AS 'username',
-                COUNT(*) as 'count_of_users'
+                COUNT(*) as 'num_shared'
             FROM employees
             GROUP BY username
           ) as usernames_table
@@ -107,7 +108,7 @@ SELECT emp_no, AVG(salary)
 -- 9b. Using the dept_emp table, count how many current
 --     employees work in each department. 
 
-SELECT dept_no, COUNT(*) as count_of_emp
+SELECT dept_no, COUNT(*) AS count_of_emp
     FROM dept_emp
     WHERE to_date = '9999-01-01'
     GROUP BY dept_no;
