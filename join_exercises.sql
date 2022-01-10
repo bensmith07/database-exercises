@@ -131,6 +131,33 @@ SELECT d.dept_name AS 'Department',
   ORDER BY AVG(s.salary) DESC
   LIMIT 1;
 
+-- Alternatively, #7 can be done using a 
+-- subquery:
+
+SELECT d.dept_name AS 'Department', 
+       AVG(s.salary) AS 'Average Salary'
+  FROM departments AS d
+    JOIN dept_emp AS de 
+      ON d.dept_no = de.dept_no
+    JOIN employees AS e
+      ON de.emp_no = e.emp_no 
+    JOIN salaries AS s 
+      ON e.emp_no = s.emp_no
+  WHERE s.to_date = '9999-01-01'
+    AND AVG(s.salary) = (
+                         SELECT MAX(AVG(s.salary))
+                           FROM departments AS d
+                             JOIN dept_emp AS de 
+                               ON d.dept_no = de.dept_no
+                             JOIN employees AS e
+                               ON de.emp_no = e.emp_no 
+                             JOIN salaries AS s 
+                               ON e.emp_no = s.emp_no
+                           WHERE s.to_date = '9999-01-01'
+                           GROUP BY d.dept_name
+                        )
+  GROUP BY d.dept_name;
+
 -- 8. Who is the highest paid employee in the
 --    marketing department?
 
