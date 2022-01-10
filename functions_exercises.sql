@@ -1,4 +1,4 @@
--- 2. Write a query to find all employees whose lat name 
+-- 2. Write a query to find all employees whose last name 
 --    starts and ends with E. Use a concat() to combine 
 --    their first and last name together as a single column 
 --    named full_name
@@ -18,17 +18,17 @@ SELECT UPPER(CONCAT(first_name, ' ', last_name)) AS 'full_name'
     AND last_name LIKE '%e'
   ORDER BY last_name, first_name;
 
--- Find all employees hired in the 90s and born on Christmas.
--- Use datediff() function to find how many days they have 
--- been working at the company (Hint: you will also need to
--- use NOW() or CURDATE() ).
+-- 4. Find all employees hired in the 90s and born on Christmas.
+--    Use datediff() function to find how many days they have 
+--    been working at the company (Hint: you will also need to
+--    use NOW() or CURDATE() ).
 
 SELECT first_name, 
        last_name, 
        DATEDIFF(NOW(), hire_date) AS days_worked
   FROM employees
   WHERE hire_date BETWEEN '1990-01-01' AND '1999-12-31'
-    AND hire_date LIKE '%12-25'
+    AND hire_date LIKE '%-12-25'
     ORDER BY days_worked DESC, last_name, first_name;
 
 -- 5. Find the smallest and largest current salary from 
@@ -38,7 +38,7 @@ SELECT first_name,
 
 SELECT MIN(salary), MAX(salary)
   FROM salaries
-  WHERE to_date = '9999-01-01'
+  WHERE to_date = '9999-01-01';
 
 -- 6. Use your knowledge of built in SQL functions to generate
 --    a username for all of the employees. A username should
