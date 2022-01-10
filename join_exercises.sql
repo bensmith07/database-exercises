@@ -148,6 +148,35 @@ SELECT CONCAT(e.first_name, ' ', e.last_name) AS 'Highest Paid in Marketing',
   ORDER BY s.salary DESC
   LIMIT 1;
 
+-- Alternatively, #8 can be done 
+-- using a subqery:
+
+SELECT CONCAT(e.first_name, ' ', e.last_name) AS 'Highest Paid in Marketing',
+       s.salary AS 'Salary'
+  FROM departments AS d
+    JOIN dept_emp AS de 
+      ON d.dept_no = de.dept_no
+    JOIN employees AS e
+      ON de.emp_no = e.emp_no
+    JOIN salaries AS s  
+      ON e.emp_no = s.emp_no
+  WHERE s.to_date = '9999-01-01'
+    AND d.dept_name = 'Marketing'
+    AND s.salary = (
+                    SELECT MAX(s.salary)
+                      FROM departments AS d
+                      JOIN dept_emp AS de 
+                        ON d.dept_no = de.dept_no
+                      JOIN employees AS e
+                        ON de.emp_no = e.emp_no
+                      JOIN salaries AS s  
+                        ON e.emp_no = s.emp_no
+                      WHERE s.to_date = '9999-01-01'
+                        AND d.dept_name = 'Marketing'
+                   );
+
+
+
 -- 9. Which current department manager has the 
 --    highest salary?
 
@@ -166,6 +195,34 @@ SELECT d.dept_name AS 'Department',
   ORDER BY s.salary DESC 
   LIMIT 1;
 
+-- Alternatively, #9 can be done 
+-- using a subqery:
+  
+SELECT d.dept_name AS 'Department',
+       CONCAT(e.first_name, ' ', e.last_name) AS 'Manager',
+       s.salary AS 'Salary'
+FROM departments AS d
+  JOIN dept_manager AS dm
+    on d.dept_no = dm.dept_no
+  JOIN employees AS e
+    ON dm.emp_no = e.emp_no
+  JOIN salaries AS s
+    ON e.emp_no = s.emp_no 
+WHERE dm.to_date = '9999-01-01'
+  AND s.to_date = '9999-01-01'
+  AND s.salary = (
+                  SELECT MAX(s.salary)
+                    FROM departments AS d
+                      JOIN dept_manager AS dm
+                        ON d.dept_no = dm.dept_no
+                      JOIN employees AS e
+                        ON dm.emp_no = e.emp_no
+                      JOIN salaries AS s
+                        ON e.emp_no = s.emp_no 
+                    WHERE dm.to_date = '9999-01-01'
+                    AND s.to_date = '9999-01-01'
+                 );
+                                  
 -- 10. Determine the average salary for each 
 --     department. Use all salary information and
 --     round your results. 
