@@ -205,8 +205,8 @@ SELECT CONCAT(e.first_name, ' ', e.last_name) AS 'Employee',
 --     within each department.
 
 SELECT d.dept_name AS 'Department',
-       -- CONCAT(e.first_name, ' ', e.last_name) AS 'Employee',
-       MAX(salary)
+       CONCAT(e.first_name, ' ', e.last_name) AS 'Employee', 
+       s.salary AS 'Salary'
   FROM departments AS d
     JOIN dept_emp AS de 
       ON d.dept_no = de.dept_no
@@ -215,8 +215,16 @@ SELECT d.dept_name AS 'Department',
     JOIN salaries AS s 
       ON e.emp_no = s.emp_no
   WHERE s.to_date = '9999-01-01'
-  GROUP BY d.dept_name;
-
-  -- ^^^NOT COMPLETE^^^ need to find the name of
-  -- employee corresponding to each max salary
+    AND (d.dept_name, s.salary) IN (
+                                    SELECT d.dept_name, MAX(s.salary)  
+                                      FROM departments AS d
+                                        JOIN dept_emp AS de 
+                                          ON d.dept_no = de.dept_no
+                                        JOIN employees AS e 
+                                          ON de.emp_no = e.emp_no
+                                        JOIN salaries AS s 
+                                          ON e.emp_no = s.emp_no
+                                      WHERE s.to_date = '9999-01-01'
+                                      GROUP BY d.dept_name
+                                    );
         
