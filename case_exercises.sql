@@ -59,4 +59,19 @@ SELECT COUNT(*),
 --        Marketing, Prod & QM, Finance & HR, Customer 
 --        Service? 
 
-
+SELECT 
+       CASE 
+         WHEN dept_name IN ('Research', 'Development') THEN 'R&D'
+         WHEN dept_name IN ('Sales', 'Marketing') THEN 'Sales & Marketing' 
+         WHEN dept_name IN ('Production', 'Quality Management') THEN 'Prod & QM'
+         ELSE dept_name
+         END AS dept_group,
+       AVG(s.salary) AS 'Average Salary',
+  FROM salaries AS s 
+    JOIN employees AS e 
+      ON s.emp_no = e.emp_no
+    JOIN dept_emp AS de 
+      ON e.emp_no = de.emp_no 
+    JOIN departments AS d 
+      ON de.dept_no = d.dept_no
+  GROUP BY dept_group;
