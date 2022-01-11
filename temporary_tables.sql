@@ -99,7 +99,46 @@ ALTER TABLE innis_1663.payment
 --    each department compares to the overall, 
 --    historical average pay. In order to make 
 --    the comparison easier, you should use the 
---    Z-score for salaries. In terms of salary, 
---    what is the best department right now to 
---    work for? The worst? 
+--    Z-score for salaries. 
+
+-- Create temporary table of current average salaries 
+-- by dept:
+CREATE TEMPORARY TABLE innis_1663.dept_avg_salary AS
+    SELECT d.dept_name AS 'department',
+           AVG(s.salary) AS 'curr_avg_sal'
+      FROM departments AS d
+        JOIN dept_emp AS de
+          ON d.dept_no = de.dept_no
+        JOIN employees AS e
+          ON de.emp_no = e.emp_no
+        JOIN salaries as s 
+          ON e.emp_no = s.emp_no 
+      WHERE s.to_date = '9999-01-01'
+      GROUP BY d.dept_name
+      ORDER BY AVG(s.salary) DESC;
+
+-- Find the z-scores:
+SELECT department,
+       curr_avg_sal, 
+       (curr_avg_sal - (SELECT AVG(salary) FROM salaries)) 
+          / 
+          (SELECT stddev(salary) FROM salaries) 
+          AS zscore
+FROM innis_1663.dept_avg_salary;
+
+-- 3a. In terms of salary, 
+--     what is the best department right now to 
+--     work for? The worst? 
+
+--ANSWER: Currently, the sales department has both the highest
+--        overall salary, and the highest salary as compared to
+--        the historical average salary for the company
+--        (at 1.5 standard deviations above the historical
+--        mean). The HR department has the lowest overall salary,
+--        which is very close to the overall historical average
+--        (.0009 standard deviations below the historical mean)
+
+
+
+
 
