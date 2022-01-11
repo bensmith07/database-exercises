@@ -202,8 +202,6 @@ SELECT CONCAT(e.first_name, ' ', e.last_name) AS 'Highest Paid in Marketing',
                         AND d.dept_name = 'Marketing'
                    );
 
-
-
 -- 9. Which current department manager has the 
 --    highest salary?
 
@@ -273,17 +271,18 @@ SELECT d.dept_name AS 'Department',
 SELECT CONCAT(e.first_name, ' ', e.last_name) AS 'Employee',
        d.dept_name AS 'Department', 
        CONCAT(m.first_name, ' ', m.last_name) AS 'Manager'
-  FROM employees AS m 
-    JOIN dept_manager as dm 
-      ON m.emp_no = dm.emp_no
+  FROM employees AS e 
+    JOIN dept_emp AS de 
+      ON e.emp_no = de.emp_no
     JOIN departments AS d
-      ON dm.dept_no = d.dept_no 
-    JOIN dept_emp AS de
-      ON d.dept_no = de.dept_no
-    JOIN employees AS e
-      ON de.emp_no = e.emp_no
+      ON de.dept_no = d.dept_no 
+    JOIN dept_manager AS dm 
+      ON d.dept_no = dm.dept_no
+    JOIN employees AS m 
+      ON dm.emp_no = m.emp_no
   WHERE de.to_date = '9999-01-01'
     AND dm.to_date = '9999-01-01';
+    
 
 -- 12. Bonus: Who is the highest paid employee 
 --     within each department.
