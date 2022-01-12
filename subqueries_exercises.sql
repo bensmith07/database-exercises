@@ -26,6 +26,11 @@ SELECT t.title
     JOIN employees AS e
       ON t.emp_no = e.emp_no
   WHERE e.first_name = 'Aamod'
+    AND emp_no IN (
+                   SELECT emp_no
+                     FROM dept_emp
+                     WHERE to_date = '9999-01-01'
+                  )
   GROUP BY t.title
   ORDER BY t.title;
 
