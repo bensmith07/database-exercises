@@ -10,6 +10,11 @@ SELECT CONCAT(first_name, ' ', last_name) as 'Employee Name'
                        FROM employees
                        WHERE emp_no = 101010
                     )
+    AND emp_no IN (
+                   SELECT emp_no
+                     FROM dept_emp
+                     WHERE to_date = '9999-01-01'
+                  )
   ORDER BY last_name, first_name;
 
 -- 2. Find all the titles ever held by all
