@@ -51,10 +51,6 @@ SELECT COUNT(emp_no)
        )
         AS previous_employees;
 
--- total employees = 300,024
--- previous employees = 91,153
-
-
 -- 4. Find all the current department managers
 --    that are female. List their names in a
 --    comment in your code.
