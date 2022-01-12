@@ -26,20 +26,24 @@ SELECT t.title
 
 -- 3. How many people in the employees table
 --    are no longer working for the company?
---ANSWER: 91153
+--ANSWER: 59900
 
 SELECT COUNT(emp_no)
   FROM (
-        SELECT de.emp_no
-        FROM dept_emp AS de
-        WHERE de.to_date < CURDATE()
-            AND de.to_date IN (
-                               SELECT MAX(de.to_date)
-                               FROM dept_emp AS de
-                               GROUP BY emp_no
-                              )
+        SELECT emp_no
+        FROM dept_emp
+        WHERE to_date < CURDATE()
+            AND (emp_no, to_date) IN (
+                                      SELECT emp_no, MAX(to_date)
+                                      FROM dept_emp
+                                      GROUP BY emp_no
+                                     )
        )
         AS previous_employees;
+
+-- total employees = 300,024
+-- previous employees = 91,153
+
 
 -- 4. Find all the current department managers
 --    that are female. List their names in a
