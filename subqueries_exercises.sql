@@ -41,9 +41,9 @@ SELECT t.title
 SELECT COUNT(emp_no)
   FROM employees
   WHERE emp_no NOT IN (
-        SELECT emp_no
-          FROM dept_emp 
-          WHERE to_date = '9999-01-01'
+                       SELECT emp_no
+                         FROM dept_emp 
+                         WHERE to_date = '9999-01-01'
                       );
 
 -- MORE COMPLEX SOLUTION:
@@ -58,14 +58,13 @@ SELECT COUNT(emp_no)
                                       FROM dept_emp
                                       GROUP BY emp_no
                                      )
-       )
-        AS previous_employees;
+       );
 
 -- 4. Find all the current department managers
 --    that are female. List their names in a
 --    comment in your code.
 --ANSWER: Isamu Legleitner, Karsten Sigstam,
---        Leon DasSarma, Hilary, Kambil
+--        Leon DasSarma, Hilary Kambil
 
 SELECT CONCAT(first_name, ' ', last_name) as 'Female Managers'
   FROM employees
