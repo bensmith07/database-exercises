@@ -815,7 +815,11 @@ SELECT f.title,
        CONCAT(c.last_name, ', ', c.first_name) AS customer_name, 
        a.phone AS customer_phone,
        CONCAT(a.address, ', ', 
-              IF(a.address2 IS NOT NULL, CONCAT(a.address2, ', '), ''), 
+              CASE 
+                  WHEN a.address2 IS NULL THEN ''
+                  WHEN a.address2 = '' THEN ''
+                  ELSE CONCAT(a.address2, ', ')
+                  END,
               ct.city, ', ', 
               a.district, ', ', 
               cr.country) 
