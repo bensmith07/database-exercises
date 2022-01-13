@@ -382,7 +382,7 @@ SELECT last_name
 -- 1c. Select [all] columns from the film table.
 SELECT *
   FROM film;
-  
+
 -- 2. DISTINCT operator
 
 -- 2a. Select all distinct last names from the actor table
@@ -515,3 +515,237 @@ SELECT *
 SELECT *
   FROM film
   WHERE CHAR_LENGTH(description) BETWEEN 100 AND 120;
+
+
+-- 6. LIKE OPERATOR
+
+-- 6a. Select [all] columns from the film table 
+--     for rows where the description begins with "A Thoughtful".
+
+SELECT *
+  FROM film 
+  WHERE description LIKE 'A Thoughtful%';
+
+-- 6b. Select [all] columns from the film table for rows 
+--     where the description ends with the word "Boat".
+
+SELECT * 
+  FROM film 
+  WHERE description like '%Boat';
+
+-- 6c. Select [all] columns from the film table where the description 
+--     contains the word "Database" and the length of the film is 
+--     greater than 3 hours.
+
+SELECT * 
+  FROM film
+  WHERE description LIKE '%Database%'
+    AND length > 180;
+
+-- 7. LIMIT OPERATOR
+
+-- 7a. Select all columns from the payment table and only include the 
+--     first 20 rows.
+
+SELECT * 
+  FROM payment
+  LIMIT 20;
+
+-- 7b. Select the payment date and amount columns from the payment 
+--     table for rows where the payment amount is greater than 5, and 
+--     only select rows whose zero-based index in the result set is 
+--     between 1000-2000.
+
+SELECT payment_date, amount
+  FROM payment
+  WHERE amount > 5
+  LIMIT 1001 OFFSET 1000;
+
+-- 7c. Select all columns from the customer table, limiting results 
+--     to those where the zero-based index is between 101-200.
+
+SELECT *
+  FROM customer 
+  LIMIT 100, OFFSET 101
+
+-- 8. ORDER BY statement
+
+-- 8a. Select all columns from the film table and order rows by the 
+--     length field in ascending order.
+
+SELECT * 
+  FROM film 
+  ORDER BY length;
+
+-- 8b. Select all distinct ratings from the film table ordered by 
+--     rating in descending order.
+
+SELECT DISTINCT rating 
+  FROM film 
+  ORDER BY rating DESC;
+
+-- 8c. Select the payment date and amount columns from the payment 
+--     table for the first 20 payments ordered by payment amount in 
+--     descending order.
+
+SELECT payment_date, amount
+  FROM payment 
+  ORDER BY amount DESC
+  LIMIT 20;
+
+-- 8d. Select the title, description, special features, length, and 
+--     rental duration columns from the film table for the first 10 
+--     films with behind the scenes footage under 2 hours in length 
+--     and a rental duration between 5 and 7 days, ordered by length 
+--     in descending order.
+
+SELECT title, description, special_features, length, rental_duration
+  FROM film
+  WHERE special_features LIKE '%Behind the Scenes%'
+    AND length < 120
+    AND rental_duration BETWEEN 5 AND 7
+    ORDER BY length DESC
+  LIMIT 10;
+
+-- 9. JOINS
+
+-- 9a. Select customer first_name/last_name and actor 
+--     first_name/last_name columns from performing a left join between 
+--     the customer and actor column on the last_name column in each 
+--     table. (i.e. customer.last_name = actor.last_name)
+
+SELECT c.first_name AS 'customer_first_name',
+       c.last_name AS 'customer_last_name',
+       a.first_name AS 'actor_first_name',
+       a.last_name AS 'actor_last_name'
+  FROM customer c
+    LEFT JOIN actor a ON c.last_name = a.last_name;
+
+-- 9b. Select the customer first_name/last_name and actor 
+--     first_name/last_name columns from performing a /right join 
+--     between the customer and actor column on the last_name column 
+--     in each table. (i.e. customer.last_name = actor.last_name)
+
+SELECT c.first_name AS 'customer_first_name',
+       c.last_name AS 'customer_last_name',
+       a.first_name AS 'actor_first_name',
+       a.last_name AS 'actor_last_name'
+  FROM customer c
+    RIGHT JOIN actor a ON c.last_name = a.last_name;
+
+-- 9c. Select the customer first_name/last_name and actor 
+--     first_name/last_name columns from performing an inner join 
+--     between the customer and actor column on the last_name column 
+--     in each table. (i.e. customer.last_name = actor.last_name)
+
+SELECT c.first_name AS 'customer_first_name',
+       c.last_name AS 'customer_last_name',
+       a.first_name AS 'actor_first_name',
+       a.last_name AS 'actor_last_name'
+  FROM customer c
+    INNER JOIN actor a ON c.last_name = a.last_name;
+
+-- 9d. Select the city name and country name columns from the city 
+--     table, performing a left join with the country table to get 
+--     the country name column.
+
+SELECT cy.city, cr.country 
+  FROM city cy
+    LEFT JOIN country cr ON cy.country_id = cr.country_id;
+
+-- 9e. Select the title, description, release year, and language name 
+--     columns from the film table, performing a left join with the 
+--     language table to get the "language" column.
+
+SELECT f.title, 
+       f.description, 
+       f.release_year, 
+       l.name AS 'language'
+  FROM film f 
+    LEFT JOIN language l ON f.language_id = l.language_id;
+
+-- 9f. Select the first_name, last_name, address, address2, city name, 
+--     district, and postal code columns from the staff table, 
+--     performing 2 left joins with the address table then the city 
+--     table to get the address and city related columns.
+
+SELECT s.first_name, s.last_name, a.address, a.address2, 
+       c.city, a.postal_code
+  FROM staff s 
+    LEFT JOIN address a ON s.address_id = a.address_id 
+    LEFT JOIN city c ON a.city_id = c.city_id;
+
+-- 1. What is the average replacement cost of a film?
+
+SELECT AVG(replacement_cost)
+  FROM film;
+
+--    Does this change depending on the rating of the film?
+
+SELECT rating, AVG(replacement_cost)
+  FROM film
+  GROUP BY rating;
+
+-- 2. How many different films of each genre are in the database?
+
+SELECT c.name, COUNT(*)
+  FROM film_category fc
+    JOIN category c ON fc.category_id = c.category_id
+  GROUP BY c.name;
+
+-- 3. What are the 5 frequently rented films?
+
+SELECT f.title, COUNT(*) AS times_rented
+  FROM film f 
+    JOIN inventory i ON f.film_id = i.film_id
+    JOIN rental r ON i.inventory_id = r.inventory_id
+  GROUP BY f.title
+  ORDER BY times_rented DESC
+  LIMIT 5;
+
+-- 4. What are the [5] most profitable films (in terms of gross 
+--    revenue)?
+
+SELECT f.title, SUM(p.amount) AS gross_revenue
+  FROM film f
+    JOIN inventory i USING(film_id)
+    JOIN rental r USING(inventory_id)
+    JOIN payment p USING(rental_id)
+  GROUP BY f.title
+  ORDER BY gross_revenue DESC
+  LIMIT 5;
+
+-- 5. Who is the best customer?
+
+SELECT CONCAT(c.last_name, ', ', c.first_name) AS customer, 
+       SUM(p.amount) AS total
+  FROM customer c
+    JOIN payment p USING(customer_id)
+  GROUP BY customer
+  ORDER BY total DESC
+  LIMIT 1;
+
+-- The following solution is more complex, but will return the 
+-- correct output in a wider variety of test cases 
+-- (i.e., when more than one customer have the same total
+-- payment amount): 
+
+SELECT CONCAT(c.last_name, ', ', c.first_name) AS customer, 
+       SUM(p.amount) AS total
+  FROM customer c
+    JOIN payment p USING(customer_id)
+  GROUP BY customer
+  HAVING total = (
+                  SELECT MAX(total)
+                    FROM (
+                          SELECT CONCAT(c.last_name, ', ', c.first_name) AS customer, 
+                                  SUM(p.amount) AS total
+                            FROM customer c
+                              JOIN payment p USING(customer_id)
+                            GROUP BY customer
+                          ) AS highest_total
+                 );
+
+
+
+
