@@ -290,24 +290,18 @@ SELECT CONCAT(e.first_name, ' ', e.last_name) AS 'Employee',
 SELECT d.dept_name AS 'Department',
        CONCAT(e.first_name, ' ', e.last_name) AS 'Employee', 
        s.salary AS 'Salary'
-  FROM departments AS d
-    JOIN dept_emp AS de 
-      ON d.dept_no = de.dept_no
-    JOIN employees AS e 
-      ON de.emp_no = e.emp_no
-    JOIN salaries AS s 
-      ON e.emp_no = s.emp_no
+  FROM departments d
+    JOIN dept_emp  de ON d.dept_no = de.dept_no
+    JOIN employees e  ON de.emp_no = e.emp_no
+    JOIN salaries  s  ON e.emp_no = s.emp_no
   WHERE s.to_date = '9999-01-01'
-    AND (d.dept_name, s.salary) IN (
-                                    SELECT d.dept_name, MAX(s.salary)  
-                                      FROM departments AS d
-                                        JOIN dept_emp AS de 
-                                          ON d.dept_no = de.dept_no
-                                        JOIN employees AS e 
-                                          ON de.emp_no = e.emp_no
-                                        JOIN salaries AS s 
-                                          ON e.emp_no = s.emp_no
-                                      WHERE s.to_date = '9999-01-01'
-                                      GROUP BY d.dept_name
-                                    );
-        
+    AND (d.dept_name, s.salary) 
+                    IN (
+                        SELECT d.dept_name, MAX(s.salary)  
+                          FROM departments d
+                            JOIN dept_emp  de ON d.dept_no = de.dept_no
+                            JOIN employees e  ON de.emp_no = e.emp_no
+                            JOIN salaries  s  ON e.emp_no = s.emp_no
+                          WHERE s.to_date = '9999-01-01'
+                          GROUP BY d.dept_name
+                        );
