@@ -746,6 +746,85 @@ SELECT CONCAT(c.last_name, ', ', c.first_name) AS customer,
                           ) AS highest_total
                  );
 
+-- 6. Who are the most popular actors (that have appeared in 
+--    the most films)?
 
+SELECT CONCAT(a.first_name, ' ', a.last_name) as actor_name,
+       COUNT(*) as count_of_films
+  FROM actor a
+    JOIN film_actor fa USING(actor_id)
+  GROUP BY actor_name
+  ORDER BY count_of_films DESC;
 
+-- 7. What are the sales for each store for each month in 2005?
 
+SELECT  s.store_id, 
+        SUBSTR(p.payment_date, 6, 2) AS payment_month,
+        SUM(p.amount) AS total_sales
+  FROM store s
+    JOIN customer c USING(store_id)
+    JOIN payment p USING(customer_id)
+  WHERE p.payment_date LIKE '2005-%'
+  GROUP BY store_id, payment_month
+  ORDER BY store_id, payment_month;
+
+-- OR using MONTH() and YEAR() functions
+
+SELECT  s.store_id, 
+        MONTH(p.payment_date) AS payment_month,
+        SUM(p.amount) AS total_sales
+  FROM store s
+    JOIN customer c USING(store_id)
+    JOIN payment p USING(customer_id)
+  WHERE YEAR(payment_date) = '2005'
+  GROUP BY store_id, payment_month
+  ORDER BY store_id, payment_month;
+
+-- with printing the name of the month and formatting currency:
+
+SELECT  s.store_id, 
+        DATE_FORMAT(p.payment_date, '%M') AS payment_month,
+        CONCAT('$', FORMAT(SUM(p.amount), 2)) AS total_sales
+  FROM store s
+    JOIN customer c USING(store_id)
+    JOIN payment p USING(customer_id)
+  WHERE YEAR(p.payment_date) = '2005'
+  GROUP BY s.store_id, payment_month
+  ORDER BY payment_month, s.store_id;
+
+-- 8. Bonus: Find the film title, customer name, customer phone 
+--    number, and customer address for all the outstanding DVDs.
+
+SELECT f.title, 
+       CONCAT(c.last_name, ', ', c.first_name) AS customer_name, 
+       a.phone AS customer_phone,
+       CONCAT(a.address, ', ', a.address2, ', ', 
+               ct.city, ', ', a.district, ', ', cr.country) AS customer_address
+  FROM customer c 
+    JOIN address a USING(address_id)
+    JOIN city ct USING(city_id)
+    JOIN country cr USING(country_id)
+    JOIN rental r USING(customer_id)
+    JOIN inventory i USING(inventory_id)
+    JOIN film f USING(film_id)
+  WHERE return_date IS NULL;
+
+-- Fix the address:  
+
+SELECT f.title, 
+       CONCAT(c.last_name, ', ', c.first_name) AS customer_name, 
+       a.phone AS customer_phone,
+       CONCAT(a.address, ', ', 
+              IF(a.address2 IS NOT NULL, CONCAT(a.address2, ', '), ''), 
+              ct.city, ', ', 
+              a.district, ', ', 
+              cr.country) 
+              AS customer_address
+  FROM customer c 
+    JOIN address a USING(address_id)
+    JOIN city ct USING(city_id)
+    JOIN country cr USING(country_id)
+    JOIN rental r USING(customer_id)
+    JOIN inventory i USING(inventory_id)
+    JOIN film f USING(film_id)
+  WHERE return_date IS NULL;
