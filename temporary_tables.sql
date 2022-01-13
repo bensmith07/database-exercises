@@ -1,11 +1,11 @@
 
+USE employees;
+
 -- 1. Using the example from the lesson, create 
 --    a temporary table called employees_with_departments
 --    that contains first_name, last_name, and 
 --    dept_name for employees currently with 
 --    that department. 
-
-USE employees;
 
 CREATE TEMPORARY TABLE innis_1663.employees_with_departments
     AS  SELECT e.first_name, 
