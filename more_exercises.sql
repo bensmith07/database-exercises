@@ -11,15 +11,12 @@ USE employees;
 -- each department
 CREATE TEMPORARY TABLE innis_1663.dept_avg_salary AS
     SELECT d.dept_no,
-           d.dept_name AS 'department',
-           AVG(s.salary) AS 'curr_avg_sal'
-      FROM departments AS d
-        JOIN dept_emp AS de
-          ON d.dept_no = de.dept_no
-        JOIN employees AS e
-          ON de.emp_no = e.emp_no
-        JOIN salaries as s 
-          ON e.emp_no = s.emp_no 
+           d.dept_name AS department,
+           AVG(s.salary) AS curr_avg_sal
+      FROM departments d
+        JOIN dept_emp de USING(dept_no)
+        JOIN employees e USING(emp_no)
+        JOIN salaries s USING(emp_no)
       WHERE s.to_date = '9999-01-01'
       GROUP BY d.dept_name;
 
@@ -33,14 +30,10 @@ SELECT d.dept_name AS 'Department',
          ELSE 'No'
          END AS 'Salary less than Average?'
   FROM innis_1663.dept_avg_salary AS da
-    JOIN departments AS d 
-      ON da.dept_no = d.dept_no 
-    JOIN dept_manager AS dm 
-      on d.dept_no = dm.dept_no
-    JOIN employees AS e  
-      ON dm.emp_no = e.emp_no 
-    JOIN salaries AS s
-      ON e.emp_no = s.emp_no 
+    JOIN departments d USING(dept_no)
+    JOIN dept_manager dm USING(dept_no)
+    JOIN employees e USING(emp_no)
+    JOIN salaries s USING(emp_no)
   WHERE dm.to_date = '9999-01-01'
     AND s.to_date = '9999-01-01'
   ORDER BY d.dept_name;  
@@ -262,8 +255,7 @@ SELECT f.film_id, f.title, COUNT(fa.actor_id)
 
 SELECT COUNT(*) 
   FROM inventory AS i 
-    JOIN film AS f
-      ON i.film_id = f.film_id
+    JOIN film f USING(film_id)
   WHERE f.title = 'HUNCHBACK IMPOSSIBLE'; 
 
 -- 13. Use subqueries to display the titles of movies 
@@ -298,17 +290,17 @@ SELECT f.title
 
 SELECT CONCAT(first_name, ' ', last_name) AS 'Actor'
   FROM actor
-    WHERE actor_id 
-            IN (
-                SELECT actor_id
-                  FROM film_actor
-                  WHERE film_id 
-                          IN (
-                              SELECT film_id
-                                FROM film
-                                WHERE title = 'Alone Trip'
-                             )
-               );
+  WHERE actor_id 
+          IN (
+              SELECT actor_id
+                FROM film_actor
+                WHERE film_id 
+                        IN (
+                            SELECT film_id
+                              FROM film
+                              WHERE title = 'Alone Trip'
+                            )
+              );
 
 -- 15. You want to run an email marketing campaign in 
 --     Canada, for which you will need the names and 
@@ -339,8 +331,15 @@ SELECT f.title
 SELECT store.store_id, 
        SUM(payment.amount)
   FROM store
-    JOIN staff   ON store.store_id = staff.store_id
-    JOIN payment ON staff.staff_id = payment.staff_id 
+    JOIN customer USING(store_id) 
+    JOIN payment USING(customer_id)
+  GROUP by store.store_id;
+
+SELECT store.store_id, 
+       SUM(payment.amount)
+  FROM store
+    JOIN staff USING(staff_id) 
+    JOIN payment USING(customer_id)
   GROUP by store.store_id;
 
 -- 18. Write a query to display for each store its 
@@ -873,37 +872,88 @@ SELECT AVG((s.size_price + t.topping_price + m.modifier_price)) AS avg_pizza_pri
 
 -- 3. What is the most common topping for pizzas that are well done?
 
-SELECT t.topping_name, COUNT(*) AS count_of_pizzas
+SELECT t.topping_name
   FROM pizzas p
     LEFT JOIN pizza_toppings pt USING(pizza_id)
     LEFT JOIN toppings t USING(topping_id)
     LEFT JOIN pizza_modifiers pm USING(pizza_id)
     LEFT JOIN modifiers m USING(modifier_id)
-    WHERE pizza_id IN ( -- all pizzas with the 'well done' modifier
-                       SELECT p.pizza_id
-                         FROM pizzas p
-                           JOIN pizza_modifiers pm USING(pizza_id)
-                           JOIN modifiers m USING(modifier_id)
-                          WHERE m.modifier_name = 'well done'
+  WHERE pizza_id IN ( -- all pizzas with the 'well done' modifier
+                      SELECT p.pizza_id
+                        FROM pizzas p
+                          JOIN pizza_modifiers pm USING(pizza_id)
+                          JOIN modifiers m USING(modifier_id)
+                        WHERE m.modifier_name = 'well done'
                       ) 
   GROUP BY t.topping_name
-  HAVING count_of_pizzas = (
-                            SELECT MAX(count_of_pizzas)
-                              FROM (
-                                    SELECT t.topping_name, COUNT(*) AS count_of_pizzas
-                                      FROM pizzas p
-                                        LEFT JOIN pizza_toppings pt USING(pizza_id)
-                                        LEFT JOIN toppings t USING(topping_id)
-                                        LEFT JOIN pizza_modifiers pm USING(pizza_id)
-                                        LEFT JOIN modifiers m USING(modifier_id)
-                                        WHERE pizza_id IN ( -- all pizzas with the 'well done' modifier
-                                                          SELECT p.pizza_id
-                                                            FROM pizzas p
-                                                              JOIN pizza_modifiers pm USING(pizza_id)
-                                                              JOIN modifiers m USING(modifier_id)
-                                                              WHERE m.modifier_name = 'well done'
-                                                          )
-                                        GROUP BY t.topping_name
-                                   )
-                                    AS pizzas_by_topping      
-                           );
+  HAVING COUNT(*) = (
+                      SELECT MAX(count_of_pizzas)
+                        FROM (
+                              SELECT t.topping_name, COUNT(*) AS count_of_pizzas
+                                FROM pizzas p
+                                  LEFT JOIN pizza_toppings pt USING(pizza_id)
+                                  LEFT JOIN toppings t USING(topping_id)
+                                  LEFT JOIN pizza_modifiers pm USING(pizza_id)
+                                  LEFT JOIN modifiers m USING(modifier_id)
+                                  WHERE pizza_id IN ( -- all pizzas with the 'well done' modifier
+                                                    SELECT p.pizza_id
+                                                      FROM pizzas p
+                                                        JOIN pizza_modifiers pm USING(pizza_id)
+                                                        JOIN modifiers m USING(modifier_id)
+                                                        WHERE m.modifier_name = 'well done'
+                                                    )
+                                  GROUP BY t.topping_name
+                              )
+                              AS pizzas_by_topping      
+                    );
+
+-- 4. How many pizzas are only cheese (i.e. have no toppings)?
+
+SELECT COUNT(*)
+  FROM pizzas
+    WHERE pizza_id NOT IN (
+                           SELECT pizza_id 
+                             FROM pizza_toppings
+                          );
+
+-- 5. How many orders consist of pizza(s) that are only cheese? 
+
+SELECT COUNT(order_id) 
+  FROM pizzas
+    WHERE pizza_id 
+          NOT IN ( -- pizzas that have toppings
+                  SELECT pizza_id
+                    FROM pizza_toppings
+                 );
+
+-- 5a. What is the average price of these orders? 
+
+SELECT AVG(s.size_price + m.modifier_price) AS avg_pizza_price
+  FROM pizzas p
+    LEFT JOIN sizes s USING(size_id)
+    LEFT JOIN pizza_modifiers pm USING(pizza_id)
+    LEFT JOIN modifiers m USING(modifier_id)
+  WHERE pizza_id 
+        NOT IN ( -- pizzas that have toppings
+                SELECT pizza_id
+                  FROM pizza_toppings
+               ); 
+
+-- 5b. The most common pizza size?
+
+SELECT s.size_name
+       COUNT(order_id) 
+  FROM pizzas p
+    JOIN size s USING(size_id)
+  WHERE pizza_id 
+        NOT IN ( -- pizzas that have toppings
+                SELECT pizza_id
+                  FROM pizza_toppings
+                );
+
+
+
+
+
+
+
