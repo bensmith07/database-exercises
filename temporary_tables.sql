@@ -54,11 +54,9 @@ ALTER TABLE innis_1663.employees_with_departments
 CREATE TEMPORARY TABLE innis_1663.employees_with_departments
     AS  SELECT d.dept_name,
                CONCAT(e.first_name, ' ', e.last_name) AS full_name
-          FROM employees as e 
-            JOIN dept_emp as de
-              ON e.emp_no = de.emp_no
-            JOIN departments as d
-              ON de.dept_no = d.dept_no 
+          FROM employees e 
+            JOIN dept_emp de USING(emp_no)
+            JOIN departments d USING(dept_no)
           WHERE de.to_date = '9999-01-01';
 
 -- 2. Create a temporary table based on the 
@@ -108,9 +106,9 @@ CREATE TEMPORARY TABLE innis_1663.dept_avg_salary AS
     SELECT d.dept_name AS 'department',
            AVG(s.salary) AS 'curr_avg_sal'
       FROM departments d
-        JOIN dept_emp de ON d.dept_no = de.dept_no
-        JOIN employees e ON de.emp_no = e.emp_no
-        JOIN salaries s ON e.emp_no = s.emp_no 
+        JOIN dept_emp de USING(dept_no)
+        JOIN employees e USING(emp_no)
+        JOIN salaries s USING(emp_no)
       WHERE s.to_date = '9999-01-01'
         AND de.to_date =  '9999-01-01'
       GROUP BY d.dept_name
