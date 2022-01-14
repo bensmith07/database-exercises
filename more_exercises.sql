@@ -795,11 +795,12 @@ SELECT  s.store_id,
 -- 8. Bonus: Find the film title, customer name, customer phone 
 --    number, and customer address for all the outstanding DVDs.
 
+-- With address 1 field only:
+
 SELECT f.title, 
        CONCAT(c.last_name, ', ', c.first_name) AS customer_name, 
        a.phone AS customer_phone,
-       CONCAT(a.address, ', ', a.address2, ', ', 
-               ct.city, ', ', a.district, ', ', cr.country) AS customer_address
+       a.address AS customer_address
   FROM customer c 
     JOIN address a USING(address_id)
     JOIN city ct USING(city_id)
@@ -809,7 +810,7 @@ SELECT f.title,
     JOIN film f USING(film_id)
   WHERE return_date IS NULL;
 
--- Fix the address:  
+-- Full address with formatting:  
 
 SELECT f.title, 
        CONCAT(c.last_name, ', ', c.first_name) AS customer_name, 
@@ -821,7 +822,10 @@ SELECT f.title,
                   ELSE CONCAT(a.address2, ', ')
                   END,
               ct.city, ', ', 
-              a.district, ', ', 
+              CASE
+                  WHEN ct.city = a.district THEN ''
+                  ELSE CONCAT(a.district, ', ')
+                  END,
               cr.country) 
               AS customer_address
   FROM customer c 
@@ -832,3 +836,74 @@ SELECT f.title,
     JOIN inventory i USING(inventory_id)
     JOIN film f USING(film_id)
   WHERE return_date IS NULL;
+
+
+--ADVANCED: PIZZA DATABASE
+
+-- 1. What information is stored in the toppings table? 
+-- +---------------+--------+------+-----+---------+----------------+
+-- | Field         | Type   | Null | Key | Default | Extra          |
+-- +---------------+--------+------+-----+---------+----------------+
+-- | topping_id    | int    | NO   | PRI | NULL    | auto_increment |
+-- | topping_name  | text   | NO   |     | NULL    |                |
+-- | topping_price | double | NO   |     | NULL    |                |
+-- +---------------+--------+------+-----+---------+----------------+
+
+
+--    How does this table relate to the pizzas table?
+--ANSWER: it is related through the associative table pizza_toppings,
+--        through keys topping_id and pizza_id
+
+-- 2. What is the average price of pizzas that have no cheese?
+
+SELECT AVG((s.size_price + t.topping_price + m.modifier_price)) AS avg_pizza_price
+  FROM pizzas p
+    LEFT JOIN sizes s USING(size_id)
+    LEFT JOIN pizza_toppings pt USING(pizza_id)
+    LEFT JOIN toppings t USING(topping_id)
+    LEFT JOIN pizza_modifiers pm USING(pizza_id)
+    LEFT JOIN modifiers m USING(modifier_id)
+  WHERE pizza_id IN ( -- all pizzas with the 'no cheese' modifier
+                     SELECT p.pizza_id
+                       FROM pizzas p 
+                         JOIN pizza_modifiers pm USING(pizza_id)
+                         JOIN modifiers m USING(modifier_id)
+                       WHERE m.modifier_name = 'no cheese'
+                    );
+
+-- 3. What is the most common topping for pizzas that are well done?
+
+SELECT t.topping_name, COUNT(*) AS count_of_pizzas
+  FROM pizzas p
+    LEFT JOIN pizza_toppings pt USING(pizza_id)
+    LEFT JOIN toppings t USING(topping_id)
+    LEFT JOIN pizza_modifiers pm USING(pizza_id)
+    LEFT JOIN modifiers m USING(modifier_id)
+    WHERE pizza_id IN ( -- all pizzas with the 'well done' modifier
+                       SELECT p.pizza_id
+                         FROM pizzas p
+                           JOIN pizza_modifiers pm USING(pizza_id)
+                           JOIN modifiers m USING(modifier_id)
+                          WHERE m.modifier_name = 'well done'
+                      ) 
+  GROUP BY t.topping_name
+  HAVING count_of_pizzas = (
+                            SELECT MAX(count_of_pizzas)
+                              FROM (
+                                    SELECT t.topping_name, COUNT(*) AS count_of_pizzas
+                                      FROM pizzas p
+                                        LEFT JOIN pizza_toppings pt USING(pizza_id)
+                                        LEFT JOIN toppings t USING(topping_id)
+                                        LEFT JOIN pizza_modifiers pm USING(pizza_id)
+                                        LEFT JOIN modifiers m USING(modifier_id)
+                                        WHERE pizza_id IN ( -- all pizzas with the 'well done' modifier
+                                                          SELECT p.pizza_id
+                                                            FROM pizzas p
+                                                              JOIN pizza_modifiers pm USING(pizza_id)
+                                                              JOIN modifiers m USING(modifier_id)
+                                                              WHERE m.modifier_name = 'well done'
+                                                          )
+                                        GROUP BY t.topping_name
+                                   )
+                                    AS pizzas_by_topping      
+                           );
