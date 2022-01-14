@@ -102,11 +102,8 @@ SELECT COUNT(salary) AS 'Number of salaries within 1 STDDEV of MAX salary'
                         (SELECT MAX(salary) FROM salaries WHERE to_date = '9999-01-01')
                         - (SELECT STDDEV(salary) FROM salaries WHERE to_date = '9999-01-01')
                        )
-                   AND (
-                        (SELECT MAX(salary) FROM salaries WHERE to_date = '9999-01-01')
-                        + (SELECT STDDEV(salary) FROM salaries WHERE to_date = '9999-01-01')
-                       );
-
+                   AND (SELECT MAX(salary) FROM salaries WHERE to_date = '9999-01-01');
+                        
 --    What percentage of all salaries is
 --    this?
 --ANSWER: 0.03%
