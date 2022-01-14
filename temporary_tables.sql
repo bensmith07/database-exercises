@@ -1,11 +1,12 @@
 
-USE employees;
 
 -- 1. Using the example from the lesson, create 
 --    a temporary table called employees_with_departments
 --    that contains first_name, last_name, and 
 --    dept_name for employees currently with 
 --    that department. 
+
+USE employees;
 
 CREATE TEMPORARY TABLE innis_1663.employees_with_departments
     AS  SELECT e.first_name, 
@@ -106,14 +107,12 @@ ALTER TABLE innis_1663.payment
 CREATE TEMPORARY TABLE innis_1663.dept_avg_salary AS
     SELECT d.dept_name AS 'department',
            AVG(s.salary) AS 'curr_avg_sal'
-      FROM departments AS d
-        JOIN dept_emp AS de
-          ON d.dept_no = de.dept_no
-        JOIN employees AS e
-          ON de.emp_no = e.emp_no
-        JOIN salaries as s 
-          ON e.emp_no = s.emp_no 
+      FROM departments d
+        JOIN dept_emp de ON d.dept_no = de.dept_no
+        JOIN employees e ON de.emp_no = e.emp_no
+        JOIN salaries s ON e.emp_no = s.emp_no 
       WHERE s.to_date = '9999-01-01'
+        AND de.to_date =  '9999-01-01'
       GROUP BY d.dept_name
       ORDER BY AVG(s.salary) DESC;
 
