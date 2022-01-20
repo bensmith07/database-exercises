@@ -951,9 +951,33 @@ SELECT s.size_name
                   FROM pizza_toppings
                 );
 
+-- 6. How may large pizzas have olives on them?
 
+SELECT COUNT(*)
+  FROM pizzas p
+    JOIN pizza_toppings pt USING(pizza_id)
+    JOIN toppings t USING(topping_id)
+    JOIN sizes s ON p.size_id = s.size_id
+  WHERE t.topping_name = 'olives'
+    AND s.size_name = 'large';
 
+-- 7. What is the average number of toppings per pizza?
 
+SELECT AVG(n_toppings)
+  FROM (
+        SELECT COUNT(*) as n_toppings
+		      FROM pizza_toppings
+		      GROUP BY pizza_id
+	     ) as n_toppings_per_pizza;
 
+-- 8. What is the average number of pizzas per order?
 
+SELECT AVG(n_pizzas)
+  FROM (
+        SELECT COUNT(*) AS n_pizzas
+          FROM pizzas
+          GROUP BY order_id
+       ) as n_pizzas_per_order;
+
+-- 9. What is the average pizza price?
 
