@@ -1,0 +1,1 @@
+SQL fundamentals - exercises and additional practice from Codeup Data Science curriculum
